@@ -43,18 +43,21 @@ git clone https://github.com/Ahmed-Ihsan/Quiz-MVP.git ~/Quiz-MVP
 cd ~/Quiz-MVP
 python3 -m venv venv
 source venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements-turso.txt
 ```
+
+> **بدون Turso:** استخدم `pip install -r requirements.txt` بدلاً من ذلك.
 
 ### 5. تهيئة قاعدة البيانات
-```bash
-python -c "from app import init_db; init_db()"
-```
-
 إذا كنت تستخدم Turso، اضبط متغيرات البيئة أولاً:
 ```bash
 export TURSO_URL="libsql://qws-quiz-xxxx.turso.io"
 export TURSO_AUTH_TOKEN="your-token-here"
+python -c "from app import init_db; init_db()"
+```
+
+بدون Turso (SQLite محلي):
+```bash
 python -c "from app import init_db; init_db()"
 ```
 
@@ -72,6 +75,10 @@ python -c "from app import init_db; init_db()"
 import os
 import sys
 
+# متغيرات Turso (إن لزم — استبدل القيم بمعلوماتك)
+os.environ["TURSO_URL"] = "libsql://qws-quiz-xxxx.turso.io"
+os.environ["TURSO_AUTH_TOKEN"] = "your-token-here"
+
 project_home = "/home/YOUR_USERNAME/Quiz-MVP"
 if project_home not in sys.path:
     sys.path.insert(0, project_home)
@@ -80,6 +87,7 @@ from wsgi import application as application  # noqa
 ```
 
 > **استبدل** `YOUR_USERNAME` باسم المستخدم الخاص بك على PythonAnywhere
+> **بدون Turso:** احذف سطري `os.environ` إذا كنت تستخدم SQLite محلي
 
 ### 8. إعداد Virtualenv
 1. في **Web tab → Virtualenv section**
@@ -92,18 +100,10 @@ from wsgi import application as application  # noqa
 |-----|-----------|
 | `/static` | `/home/YOUR_USERNAME/Quiz-MVP/static` |
 
-### 10. إعداد متغيرات البيئة لـ Turso (إن لزم)
-في **Web tab → Environment variables** (أو في ملف WSGI قبل الاستيراد):
-```python
-import os
-os.environ["TURSO_URL"] = "libsql://qws-quiz-xxxx.turso.io"
-os.environ["TURSO_AUTH_TOKEN"] = "your-token-here"
-```
-
-### 11. إعادة التحميل
+### 10. إعادة التحميل
 اضغط زر **Reload** في أعلى صفحة Web tab
 
-### 12. فتح التطبيق
+### 11. فتح التطبيق
 رابط التطبيق سيكون:
 ```
 https://YOUR_USERNAME.pythonanywhere.com
