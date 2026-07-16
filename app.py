@@ -8,9 +8,10 @@ import os
 import random
 import secrets
 import statistics
-import sqlite3
 import time
 from datetime import datetime
+
+import db as db_module
 
 from flask import (
     Flask,
@@ -64,7 +65,7 @@ def init_db():
     تُرحّل سجلات `results.json` الحالية إلى SQLite لمرة واحدة عند أول تشغيل
     (إذا كان الجدول فارغًا والملف موجودًا وصالحًا). لا تُحذف `results.json`.
     """
-    conn = sqlite3.connect(DB_FILE)
+    conn = db_module.connect(DB_FILE)
     try:
         conn.execute(
             """CREATE TABLE IF NOT EXISTS results (
@@ -104,7 +105,7 @@ def init_db():
         # إضافة عمود image لجدول answer_details إن لم يوجد
         try:
             conn.execute("ALTER TABLE answer_details ADD COLUMN image TEXT")
-        except sqlite3.OperationalError:
+        except db_module._get_operational_error():
             pass  # العمود موجود بالفعل
 
         conn.commit()
@@ -196,8 +197,8 @@ def load_results():
     tab_switches، wrong_question_ids) اختيارية وتُعامَل كقيم افتراضية عند فقدها.
     السجلات بدون `status` تُعامَل كـ `completed` (توافق عكسي).
     """
-    conn = sqlite3.connect(DB_FILE)
-    conn.row_factory = sqlite3.Row
+    conn = db_module.connect(DB_FILE)
+    conn.row_factory = db_module._DB_MODULE.Row
     try:
         rows = conn.execute("SELECT * FROM results").fetchall()
         return [_row_to_dict(row) for row in rows]
@@ -210,7 +211,7 @@ def save_results(results):
 
     تُحذف كل السجلات وتُعاد إدراجها ضمن معاملة واحدة لضمان الكتابة الذرية.
     """
-    conn = sqlite3.connect(DB_FILE)
+    conn = db_module.connect(DB_FILE)
     try:
         conn.execute("DELETE FROM results")
         for r in results:
@@ -225,7 +226,7 @@ def save_answer_details(name, questions, answers_map, date_str):
 
     يُستدعى مرة واحدة عند إرسال الاختبار. البيانات هنا للأدمن فقط ولا تُعرَض للطالب.
     """
-    conn = sqlite3.connect(DB_FILE)
+    conn = db_module.connect(DB_FILE)
     try:
         for q in questions:
             qid = str(q["id"])
@@ -258,8 +259,8 @@ def save_answer_details(name, questions, answers_map, date_str):
 
 def load_answer_details(name, date_str):
     """تحميل تفاصيل إجابات طالب محدد (بالاسم والتاريخ) من جدول answer_details."""
-    conn = sqlite3.connect(DB_FILE)
-    conn.row_factory = sqlite3.Row
+    conn = db_module.connect(DB_FILE)
+    conn.row_factory = db_module._DB_MODULE.Row
     try:
         rows = conn.execute(
             """SELECT * FROM answer_details
@@ -277,7 +278,7 @@ def generate_resume_code():
 
     يتحقق من التفرّد مقابل السجلات الحالية في SQLite ويعيد التوليد إن لزم.
     """
-    conn = sqlite3.connect(DB_FILE)
+    conn = db_module.connect(DB_FILE)
     try:
         rows = conn.execute("SELECT resume_code FROM results WHERE resume_code IS NOT NULL").fetchall()
         existing_codes = {row[0] for row in rows}
@@ -291,8 +292,8 @@ def generate_resume_code():
 
 def find_in_progress(name):
     """إرجاع أحدث سجل `in_progress` لاسم معين، أو None إن لم يوجد."""
-    conn = sqlite3.connect(DB_FILE)
-    conn.row_factory = sqlite3.Row
+    conn = db_module.connect(DB_FILE)
+    conn.row_factory = db_module._DB_MODULE.Row
     try:
         row = conn.execute(
             """SELECT * FROM results
@@ -310,8 +311,8 @@ def find_by_resume_code(code):
     if not code:
         return None
     code = code.strip().upper()
-    conn = sqlite3.connect(DB_FILE)
-    conn.row_factory = sqlite3.Row
+    conn = db_module.connect(DB_FILE)
+    conn.row_factory = db_module._DB_MODULE.Row
     try:
         row = conn.execute(
             "SELECT * FROM results WHERE UPPER(resume_code) = ?", (code,)
@@ -327,7 +328,7 @@ def upsert_progress(record):
     يُرجع السجل النهائي.
     """
     code = record.get("resume_code")
-    conn = sqlite3.connect(DB_FILE)
+    conn = db_module.connect(DB_FILE)
     try:
         if code:
             existing = conn.execute(
@@ -1016,8 +1017,8 @@ def admin_answers():
     if not session.get("is_admin"):
         return redirect(url_for("admin_login", next=request.path))
 
-    conn = sqlite3.connect(DB_FILE)
-    conn.row_factory = sqlite3.Row
+    conn = db_module.connect(DB_FILE)
+    conn.row_factory = db_module._DB_MODULE.Row
     try:
         rows = conn.execute(
             """SELECT r.name AS student_name,
@@ -1070,7 +1071,7 @@ def admin_answers_delete():
     if not name or not date:
         return redirect(url_for("admin_answers"))
 
-    conn = sqlite3.connect(DB_FILE)
+    conn = db_module.connect(DB_FILE)
     try:
         conn.execute(
             "DELETE FROM results WHERE name = ? AND date = ?",

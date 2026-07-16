@@ -1,2 +1,3 @@
 flask
+libsql-experimental
 pytest

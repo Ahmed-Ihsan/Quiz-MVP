@@ -5,14 +5,39 @@
 ### 1. إنشاء حساب
 - اذهب إلى [pythonanywhere.com](https://www.pythonanywhere.com) وأنشئ حساب مجاني (Beginner account)
 
-### 2. استنساخ المشروع من GitHub
+### 2. إعداد قاعدة بيانات Turso (اختياري - موصى به)
+
+Turso قاعدة بيانات سحابية مبنية على SQLite (libSQL) تتيح الوصول للبيانات من أي مكان.
+
+1. أنشئ حساب على [turso.tech](https://turso.tech)
+2. من الـ Bash console في PythonAnywhere (أو جهازك)، ثبّت Turso CLI:
+   ```bash
+   curl -sSfL https://get.tur.so/install.sh | bash
+   ```
+3. سجّل الدخول وأنشئ قاعدة بيانات:
+   ```bash
+   turso auth login
+   turso db create qws-quiz
+   ```
+4. احصل على رابط قاعدة البيانات ورمز المصادقة:
+   ```bash
+   turso db show qws-quiz --url
+   turso db tokens create qws-quiz
+   ```
+5. سجّل القيم (ستحتاجها في الخطوة التالية):
+   - `TURSO_URL`: رابط مثل `libsql://qws-quiz-xxxx.turso.io`
+   - `TURSO_AUTH_TOKEN`: رمز المصادقة
+
+> **بدون Turso:** التطبيق يستخدم SQLite محلي تلقائيًا إذا لم تُضبط هذه المتغيرات.
+
+### 3. استنساخ المشروع من GitHub
 1. اذهب إلى **Dashboard → Consoles → Bash**
 2. نفّذ:
 ```bash
 git clone https://github.com/Ahmed-Ihsan/Quiz-MVP.git ~/Quiz-MVP
 ```
 
-### 3. إنشاء بيئة افتراضية وتثبيت المكتبات
+### 4. إنشاء بيئة افتراضية وتثبيت المكتبات
 في نفس الـ Bash console:
 ```bash
 cd ~/Quiz-MVP
@@ -21,17 +46,24 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 4. تهيئة قاعدة البيانات
+### 5. تهيئة قاعدة البيانات
 ```bash
 python -c "from app import init_db; init_db()"
 ```
 
-### 5. إنشاء تطبيق ويب (Web App)
+إذا كنت تستخدم Turso، اضبط متغيرات البيئة أولاً:
+```bash
+export TURSO_URL="libsql://qws-quiz-xxxx.turso.io"
+export TURSO_AUTH_TOKEN="your-token-here"
+python -c "from app import init_db; init_db()"
+```
+
+### 6. إنشاء تطبيق ويب (Web App)
 1. اذهب إلى **Dashboard → Web → Add a new web app**
 2. اختر **Manual configuration**
 3. اختر **Python 3.10** (أو الأحدث المتاح)
 
-### 6. إعداد WSGI
+### 7. إعداد WSGI
 1. اذهب إلى **Web tab → Code section → WSGI configuration file**
 2. اضغط على الرابط لتحرير الملف
 3. **احذف كل المحتوى** والصق التالي:
@@ -49,21 +81,29 @@ from wsgi import application as application  # noqa
 
 > **استبدل** `YOUR_USERNAME` باسم المستخدم الخاص بك على PythonAnywhere
 
-### 7. إعداد Virtualenv
+### 8. إعداد Virtualenv
 1. في **Web tab → Virtualenv section**
 2. اكتب المسار: `/home/YOUR_USERNAME/Quiz-MVP/venv`
 
-### 8. إعداد الملفات الثابتة (Static Files)
+### 9. إعداد الملفات الثابتة (Static Files)
 في **Web tab → Static files section**، أضف:
 
 | URL | Directory |
 |-----|-----------|
 | `/static` | `/home/YOUR_USERNAME/Quiz-MVP/static` |
 
-### 9. إعادة التحميل
+### 10. إعداد متغيرات البيئة لـ Turso (إن لزم)
+في **Web tab → Environment variables** (أو في ملف WSGI قبل الاستيراد):
+```python
+import os
+os.environ["TURSO_URL"] = "libsql://qws-quiz-xxxx.turso.io"
+os.environ["TURSO_AUTH_TOKEN"] = "your-token-here"
+```
+
+### 11. إعادة التحميل
 اضغط زر **Reload** في أعلى صفحة Web tab
 
-### 10. فتح التطبيق
+### 12. فتح التطبيق
 رابط التطبيق سيكون:
 ```
 https://YOUR_USERNAME.pythonanywhere.com
