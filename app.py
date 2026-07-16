@@ -904,7 +904,7 @@ def admin_login():
         if password == ADMIN_PASSWORD:
             session["is_admin"] = True
             return redirect(next_url or url_for("admin_questions"))
-        return render_template("admin.html", login_error="كلمة المرور غير صحيحة", next_url=next_url)
+        return render_template("admin.html", admin_login=True, login_error="كلمة المرور غير صحيحة", next_url=next_url)
 
     return render_template("admin.html", admin_login=True, next_url=next_url)
 

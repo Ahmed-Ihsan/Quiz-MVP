@@ -1,0 +1,94 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.8", "3.11"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest
+
+      - name: Run tests
+        run: pytest tests/ -v
+
+  lint:
+    name: Syntax & Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8
+
+      - name: Flake8 (errors only)
+        run: flake8 app.py parse_questions.py tests/ --count --select=E9,F63,F7,F82 --show-source --statistics
+
+      - name: Flake8 (style, non-blocking)
+        run: flake8 app.py parse_questions.py tests/ --count --max-line-length=120 --statistics --exit-zero
+
+  build:
+    name: Build Check
+    runs-on: ubuntu-latest
+    needs: [test, lint]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies and verify app imports
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          python -c "import app; print('App imports successfully')"
+
+      - name: Verify questions.json
+        run: |
+          python -c "
+          import json
+          with open('questions.json', encoding='utf-8') as f:
+              qs = json.load(f)
+          assert len(qs) > 0, 'No questions found'
+          print(f'questions.json OK: {len(qs)} questions')
+          "
