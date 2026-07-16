@@ -10,7 +10,3 @@ if project_home not in sys.path:
     sys.path.insert(0, project_home)
 
 from app import app as application  # noqa: E402
-
-# تهيئة قاعدة البيانات عند أول تشغيل
-from app import init_db  # noqa: E402
-init_db()

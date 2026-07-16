@@ -30,6 +30,10 @@ if USE_TURSO:
             _DB_MODULE = sqlite3
             _IS_LIBSQL = False
             USE_TURSO = False
+            import sys
+            print("WARNING: TURSO_URL is set but libsql/libsql_experimental is not installed. "
+                  "Falling back to local sqlite3. "
+                  "Install with: pip install libsql-experimental", file=sys.stderr)
 else:
     import sqlite3
     _DB_MODULE = sqlite3
@@ -51,18 +55,15 @@ def _get_operational_error():
 def connect(db_path):
     """إنشاء اتصال بقاعدة البيانات.
 
-    مع Turso: يتصل بقاعدة libSQL البعيدة (مع نسخة محلية embedded replica).
+    مع Turso: يتصل بقاعدة libSQL البعيدة (remote-only).
     مع sqlite3: يتصل بملف محلي.
     """
     if USE_TURSO:
+        # remote-only: نمرر رابط Turso مباشرة بدون sync_url
         conn = _DB_MODULE.connect(
             TURSO_URL,
             auth_token=TURSO_AUTH_TOKEN,
-            sync_url=TURSO_URL,
         )
-        # مزامنة النسخة المحلية مع البعيدة
-        if hasattr(conn, "sync"):
-            conn.sync()
     else:
         conn = _DB_MODULE.connect(db_path)
 
