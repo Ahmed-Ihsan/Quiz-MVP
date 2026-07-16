@@ -4,8 +4,11 @@
 
 إذا كانت متغيرات البيئة TURSO_URL و TURSO_AUTH_TOKEN موجودة،
 يستخدم Turso (libSQL). وإلا يستخدم sqlite3 المحلي.
+إذا فشل الاتصال بـ Turso، يتراجع تلقائيًا إلى sqlite3 المحلي.
 """
 import os
+import sys
+import sqlite3
 
 # متغيرات البيئة لـ Turso
 TURSO_URL = os.environ.get("TURSO_URL", "")
@@ -13,6 +16,8 @@ TURSO_AUTH_TOKEN = os.environ.get("TURSO_AUTH_TOKEN", "")
 
 # تحديد نوع قاعدة البيانات
 USE_TURSO = bool(TURSO_URL and TURSO_AUTH_TOKEN)
+_DB_MODULE = sqlite3
+_IS_LIBSQL = False
 
 if USE_TURSO:
     try:
@@ -25,19 +30,10 @@ if USE_TURSO:
             _DB_MODULE = libsql
             _IS_LIBSQL = True
         except ImportError:
-            # تراجع إلى sqlite3 إذا لم تكن libsql مُثبّتة
-            import sqlite3
-            _DB_MODULE = sqlite3
-            _IS_LIBSQL = False
             USE_TURSO = False
-            import sys
-            print("WARNING: TURSO_URL is set but libsql/libsql_experimental is not installed. "
+            print("WARNING: TURSO_URL is set but libsql is not installed. "
                   "Falling back to local sqlite3. "
                   "Install with: pip install libsql-experimental", file=sys.stderr)
-else:
-    import sqlite3
-    _DB_MODULE = sqlite3
-    _IS_LIBSQL = False
 
 
 class OperationalError(Exception):
@@ -52,6 +48,38 @@ def _get_operational_error():
     return sqlite3.OperationalError
 
 
+def _turso_connect():
+    """إنشاء اتصال بـ Turso (remote-only)."""
+    return _DB_MODULE.connect(
+        TURSO_URL,
+        auth_token=TURSO_AUTH_TOKEN,
+    )
+
+
+def _test_turso_connection():
+    """اختبار الاتصال بـ Turso. يُرجع True إذا نجح، False إذا فشل."""
+    global USE_TURSO, _DB_MODULE, _IS_LIBSQL
+    if not USE_TURSO:
+        return False
+    try:
+        conn = _turso_connect()
+        conn.execute("SELECT 1").fetchone()
+        conn.close()
+        return True
+    except Exception as e:
+        print(f"WARNING: Turso connection failed: {e}. "
+              f"Falling back to local sqlite3.", file=sys.stderr)
+        USE_TURSO = False
+        _DB_MODULE = sqlite3
+        _IS_LIBSQL = False
+        return False
+
+
+# اختبار الاتصال بـ Turso عند الاستيراد
+if USE_TURSO:
+    _test_turso_connection()
+
+
 def connect(db_path):
     """إنشاء اتصال بقاعدة البيانات.
 
@@ -59,17 +87,19 @@ def connect(db_path):
     مع sqlite3: يتصل بملف محلي.
     """
     if USE_TURSO:
-        # remote-only: نمرر رابط Turso مباشرة بدون sync_url
-        conn = _DB_MODULE.connect(
-            TURSO_URL,
-            auth_token=TURSO_AUTH_TOKEN,
-        )
+        try:
+            conn = _turso_connect()
+        except Exception:
+            # تراجع طارئ إلى sqlite3 إذا فشل الاتصال وقت التشغيل
+            conn = sqlite3.connect(db_path)
     else:
-        conn = _DB_MODULE.connect(db_path)
+        conn = sqlite3.connect(db_path)
 
-    # تعيين row_factory إذا كان مدعومًا
+    # تعيين row_factory
     if hasattr(_DB_MODULE, "Row"):
         conn.row_factory = _DB_MODULE.Row
+    elif hasattr(sqlite3, "Row"):
+        conn.row_factory = sqlite3.Row
 
     return conn
 
