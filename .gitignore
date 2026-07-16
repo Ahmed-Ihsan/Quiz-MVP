@@ -5,3 +5,5 @@ quiz.db
 stats_test.txt
 *.db
 .env
+venv/
+.pytest_cache/
