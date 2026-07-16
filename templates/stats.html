@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+
+{% block title %}منصة الاختبار - الإحصائيات{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="card">
+            <h1>لوحة الإحصائيات</h1>
+
+            {% if not has_results %}
+            <p class="no-results">لا توجد نتائج بعد لعرض الإحصائيات</p>
+            {% else %}
+
+            {# ─── بطاقات الملخص الرئيسي ─── #}
+            <div class="stats-summary">
+                <div class="stat-card">
+                    <div class="stat-value">{{ total_students }}</div>
+                    <div class="stat-label">عدد المشاركين</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ avg_percentage }}%</div>
+                    <div class="stat-label">متوسط النسبة</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ highest }}%</div>
+                    <div class="stat-label">أعلى نتيجة</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ lowest }}%</div>
+                    <div class="stat-label">أدنى نتيجة</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ pass_rate }}%</div>
+                    <div class="stat-label">نسبة النجاح</div>
+                </div>
+            </div>
+
+            {# ─── إحصائيات متقدمة ─── #}
+            <div class="stats-section">
+                <h2>إحصائيات متقدمة</h2>
+                <div class="stats-summary">
+                    <div class="stat-card stat-card-advanced">
+                        <div class="stat-value">{{ median_percentage }}%</div>
+                        <div class="stat-label">الوسيط (Median)</div>
+                    </div>
+                    <div class="stat-card stat-card-advanced">
+                        <div class="stat-value">{{ stdev_percentage }}%</div>
+                        <div class="stat-label">الانحراف المعياري</div>
+                    </div>
+                    <div class="stat-card stat-card-advanced">
+                        <div class="stat-value">{{ score_range }}%</div>
+                        <div class="stat-label">مدى الدرجات</div>
+                    </div>
+                    <div class="stat-card stat-card-advanced">
+                        <div class="stat-value">{{ q1_percentage }}%</div>
+                        <div class="stat-label">الربيع الأول (Q1)</div>
+                    </div>
+                    <div class="stat-card stat-card-advanced">
+                        <div class="stat-value">{{ q3_percentage }}%</div>
+                        <div class="stat-label">الربيع الثالث (Q3)</div>
+                    </div>
+                </div>
+            </div>
+
+            {# ─── توزيع الدرجات (رسم دائري + أشرطة) ─── #}
+            <div class="stats-section">
+                <h2>توزيع الدرجات</h2>
+                <div class="chart-pie-container">
+                    <div class="pie-chart-wrapper">
+                        <div class="pie-chart" style="background: conic-gradient({% for seg in pie_segments %}{{ seg.color }} {{ seg.start_pct }}% {{ seg.end_pct }}%{% if not loop.last %}, {% endif %}{% endfor %});">
+                            <div class="pie-chart-center">
+                                <span class="pie-total">{{ total_students }}</span>
+                                <span class="pie-total-label">مشارك</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pie-legend">
+                        {% for seg in pie_segments %}
+                        <div class="pie-legend-item">
+                            <span class="pie-legend-color" style="background: {{ seg.color }};"></span>
+                            <span class="pie-legend-label">{{ seg.label }}</span>
+                            <span class="pie-legend-count">{{ seg.count }} ({{ seg.pct }}%)</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="distribution">
+                    {% for label, count in distribution.items() %}
+                    <div class="dist-row">
+                        <div class="dist-label">{{ label }}</div>
+                        <div class="dist-bar-track">
+                            <div class="dist-bar-fill" style="width: {{ (count / max_dist) * 100 }}%"></div>
+                        </div>
+                        <div class="dist-count">{{ count }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {# ─── الاتجاه الزمني للأداء ─── #}
+            <div class="stats-section">
+                <h2>الاتجاه الزمني للأداء</h2>
+                {% if trend_count > 1 %}
+                <div id="trend-chart-container" class="chart-line-container">
+                    <svg id="trend-chart"></svg>
+                </div>
+                {% elif trend_count == 1 %}
+                <p class="no-results">يوجد نقطة بيانات واحدة فقط — لا يمكن رسم الاتجاه الزمني</p>
+                {% else %}
+                <p class="no-results">لا توجد بيانات كافية لرسم الاتجاه الزمني</p>
+                {% endif %}
+            </div>
+
+            {# ─── تحليل الأداء حسب الأقسام ─── #}
+            <div class="stats-section">
+                <h2>تحليل الأداء حسب الأقسام</h2>
+                <div class="section-analysis">
+                    {% for s in section_analysis %}
+                    <div class="section-bar-row">
+                        <div class="section-bar-label">
+                            <span class="section-bar-name">{{ s.section }}</span>
+                            <span class="section-bar-meta">{{ s.total_qs }} سؤال</span>
+                        </div>
+                        <div class="section-bar-track">
+                            <div class="section-bar-fill" style="width: {{ s.correct_rate }}%"></div>
+                            <span class="section-bar-pct">{{ s.correct_rate }}%</span>
+                        </div>
+                        <div class="section-bar-detail">
+                            <span class="section-detail-correct">{{ s.correct_count }} صحيح</span>
+                            <span class="section-detail-wrong">{{ s.wrong_count }} خطأ</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {# ─── تحليل الوقت ومكافحة الغش ─── #}
+            <div class="stats-section">
+                <h2>تحليل الوقت ومكافحة الغش</h2>
+                <div class="stats-summary">
+                    <div class="stat-card">
+                        <div class="stat-value">{{ avg_time_fmt }}</div>
+                        <div class="stat-label">متوسط الوقت</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">{{ max_time_fmt }}</div>
+                        <div class="stat-label">أطول وقت</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">{{ min_time_fmt }}</div>
+                        <div class="stat-label">أقصر وقت</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">{{ avg_tab_switches }}</div>
+                        <div class="stat-label">متوسط تبديلات التبويب</div>
+                    </div>
+                    <div class="stat-card{% if suspicious_count > 0 %} stat-card-warning{% endif %}">
+                        <div class="stat-value">{{ suspicious_count }}</div>
+                        <div class="stat-label">محاولات مشبوهة</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">{{ max_tab_switches }}</div>
+                        <div class="stat-label">أقصى تبديلات</div>
+                    </div>
+                </div>
+            </div>
+
+            {# ─── أصعب الأسئلة ─── #}
+            <div class="stats-section">
+                <h2>أصعب الأسئلة (الأكثر خطأً)</h2>
+                {% if hardest %}
+                <ol class="hardest-list">
+                    {% for h in hardest %}
+                    <li>
+                        <div class="hardest-text">{{ h.text }}</div>
+                        <div class="hardest-rate">
+                            نسبة الخطأ: {{ h.error_rate }}% ({{ h.error_count }} من {{ total_students }})
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ol>
+                {% else %}
+                <p class="no-results">لا توجد بيانات كافية لتحديد أصعب الأسئلة.</p>
+                {% endif %}
+            </div>
+
+            {# ─── جدول أداء جميع الأسئلة ─── #}
+            <div class="stats-section">
+                <h2>جدول أداء جميع الأسئلة</h2>
+                <div class="questions-table-wrapper">
+                    <table class="questions-analysis-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>القسم</th>
+                                <th>نص السؤال</th>
+                                <th>نسبة الخطأ</th>
+                                <th>نسبة الصحة</th>
+                                <th>عدد الأخطاء</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for q in all_questions_analysis %}
+                            <tr>
+                                <td class="q-col-id">{{ q.id }}</td>
+                                <td class="q-col-section">{{ q.section }}</td>
+                                <td class="q-col-text">{{ q.text }}</td>
+                                <td class="q-col-error">
+                                    <div class="q-error-bar">
+                                        <div class="q-error-bar-fill" style="width: {{ q.error_rate }}%"></div>
+                                    </div>
+                                    <span class="q-error-pct">{{ q.error_rate }}%</span>
+                                </td>
+                                <td class="q-col-correct">{{ q.correct_rate }}%</td>
+                                <td class="q-col-count">{{ q.error_count }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {% endif %}
+
+            <div class="nav-buttons">
+                <a href="{{ url_for('results') }}" class="btn">عرض كل النتائج</a>
+                <a href="{{ url_for('login') }}" class="btn btn-secondary">العودة للرئيسية</a>
+            </div>
+        </div>
+    </div>
+
+    {% if has_results and trend_count > 1 %}
+    <script>
+    (function() {
+        var trendData = {{ trend_data | safe }};
+        if (!trendData || trendData.length < 2) return;
+
+        var container = document.getElementById('trend-chart-container');
+        if (!container) return;
+
+        var svg = document.getElementById('trend-chart');
+        var width = Math.min(container.clientWidth || 600, 700);
+        var height = 240;
+        var pad = { top: 25, right: 25, bottom: 55, left: 50 };
+        var cw = width - pad.left - pad.right;
+        var ch = height - pad.top - pad.bottom;
+
+        var n = trendData.length;
+        var xScale = function(i) { return pad.left + (n > 1 ? (i / (n - 1)) * cw : cw / 2); };
+        var yScale = function(v) { return pad.top + ch - (v / 100) * ch; };
+
+        var html = '';
+
+        // خطوط الشبكة وتسميات المحور الصادي
+        for (var g = 0; g <= 4; g++) {
+            var yVal = g * 25;
+            var y = yScale(yVal);
+            html += '<line x1="' + pad.left + '" y1="' + y + '" x2="' + (width - pad.right) + '" y2="' + y + '" stroke="var(--border)" stroke-width="1" stroke-dasharray="4,4"/>';
+            html += '<text x="' + (pad.left - 10) + '" y="' + (y + 4) + '" text-anchor="end" fill="var(--text-muted)" font-size="11" font-family="Cairo, sans-serif">' + yVal + '%</text>';
+        }
+
+        // المنطقة تحت الخط
+        var areaPath = 'M ' + xScale(0) + ' ' + yScale(0);
+        for (var i = 0; i < n; i++) {
+            areaPath += ' L ' + xScale(i) + ' ' + yScale(trendData[i].avg);
+        }
+        areaPath += ' L ' + xScale(n - 1) + ' ' + yScale(0) + ' Z';
+        html += '<path d="' + areaPath + '" fill="var(--primary-light)" opacity="0.4"/>';
+
+        // الخط
+        var linePath = '';
+        for (var i = 0; i < n; i++) {
+            linePath += (i === 0 ? 'M ' : 'L ') + xScale(i) + ' ' + yScale(trendData[i].avg) + ' ';
+        }
+        html += '<path d="' + linePath + '" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>';
+
+        // النقاط وتسميات المحور السيني
+        for (var i = 0; i < n; i++) {
+            var x = xScale(i);
+            var y = yScale(trendData[i].avg);
+            html += '<circle cx="' + x + '" cy="' + y + '" r="5" fill="var(--primary)" stroke="var(--surface)" stroke-width="2"><title>' + trendData[i].date + ' — المتوسط: ' + trendData[i].avg + '% (' + trendData[i].count + ' مشارك)</title></circle>';
+            var label = trendData[i].date;
+            if (n > 6) {
+                html += '<text x="' + x + '" y="' + (height - pad.bottom + 15) + '" text-anchor="end" fill="var(--text-muted)" font-size="10" font-family="Cairo, sans-serif" transform="rotate(-40 ' + x + ' ' + (height - pad.bottom + 15) + ')">' + label + '</text>';
+            } else {
+                html += '<text x="' + x + '" y="' + (height - pad.bottom + 20) + '" text-anchor="middle" fill="var(--text-muted)" font-size="11" font-family="Cairo, sans-serif">' + label + '</text>';
+            }
+        }
+
+        svg.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
+        svg.setAttribute('width', '100%');
+        svg.setAttribute('height', height);
+        svg.style.overflow = 'visible';
+        svg.innerHTML = html;
+    })();
+    </script>
+    {% endif %}
+{% endblock %}

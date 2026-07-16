@@ -1,0 +1,12 @@
+﻿/* === منصة الاختبار التفاعلي — ملف الأنماط الرئيسي === */
+/* يتم تحميل جميع الأنماطة من ملفات منفصلة عبر @import */
+
+@import url('css/variables.css');
+@import url('css/base.css');
+@import url('css/quiz.css');
+@import url('css/result.css');
+@import url('css/resume.css');
+@import url('css/stats.css');
+@import url('css/components.css');
+@import url('css/responsive.css');
+@import url('css/admin.css');

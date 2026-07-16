@@ -1,0 +1,153 @@
+/* ═══════════════════════════════════════════════════ */
+/* === إشعارات Toast === */
+/* ═══════════════════════════════════════════════════ */
+
+.toast-container {
+    position: fixed;
+    top: 20px;
+    inset-inline: 0;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-sm);
+    pointer-events: none;
+    padding: 0 var(--space-md);
+}
+
+.toast {
+    background: var(--surface);
+    color: var(--text);
+    padding: 14px 20px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border);
+    border-inline-start: 4px solid var(--primary);
+    font-size: 0.95em;
+    font-weight: 600;
+    max-width: 480px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    pointer-events: auto;
+    animation: toast-slide-in var(--transition-slow) ease-out;
+}
+
+.toast.toast-warning {
+    border-inline-start-color: var(--warning);
+}
+
+.toast.toast-danger {
+    border-inline-start-color: var(--danger);
+}
+
+.toast.toast-success {
+    border-inline-start-color: var(--success);
+}
+
+.toast.toast-out {
+    animation: toast-slide-out var(--transition-base) ease-in forwards;
+}
+
+@keyframes toast-slide-in {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes toast-slide-out {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(-20px); }
+}
+
+.toast-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════════════ */
+/* === المودال المخصص === */
+/* ═══════════════════════════════════════════════════ */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-md);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition-base);
+}
+
+.modal-overlay.modal-open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+    max-width: 440px;
+    width: 100%;
+    box-shadow: var(--shadow-xl);
+    border: 1px solid var(--border);
+    transform: scale(0.95);
+    transition: transform var(--transition-base);
+}
+
+.modal-overlay.modal-open .modal {
+    transform: scale(1);
+}
+
+.modal-title {
+    font-size: 1.2em;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: var(--space-sm);
+    text-align: center;
+}
+
+.modal-body {
+    color: var(--text-muted);
+    text-align: center;
+    margin-bottom: var(--space-lg);
+    line-height: var(--line-height-body);
+}
+
+.modal-actions {
+    display: flex;
+    gap: var(--space-sm);
+    justify-content: center;
+}
+
+.modal-actions .btn {
+    flex: 1;
+}
+
+.btn-modal-cancel {
+    background: var(--text-muted);
+}
+
+.btn-modal-cancel:hover {
+    background: var(--border-strong);
+}
+
+.btn-modal-confirm {
+    background: var(--danger);
+}
+
+.btn-modal-confirm:hover {
+    background: #b91c1c;
+}
+
+[data-theme="dark"] .btn-modal-confirm:hover {
+    background: var(--danger);
+}

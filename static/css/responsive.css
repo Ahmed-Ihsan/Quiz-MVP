@@ -1,0 +1,130 @@
+/* ═══════════════════════════════════════════════════ */
+/* === التجاوب مع الجوال === */
+/* ═══════════════════════════════════════════════════ */
+
+@media (max-width: 600px) {
+    .container {
+        margin: var(--space-sm) auto;
+        padding: 0 var(--space-sm);
+    }
+
+    .card {
+        padding: var(--space-md);
+    }
+
+    .card h1 {
+        font-size: 1.4em;
+    }
+
+    .quiz-header {
+        flex-wrap: wrap;
+        gap: var(--space-sm);
+        padding: 10px 14px;
+    }
+
+    .progress-bar {
+        order: -1;
+        flex: 1 1 100%;
+    }
+
+    .student-name {
+        font-size: 0.82em;
+    }
+
+    .student-avatar {
+        width: 30px;
+        height: 30px;
+        font-size: 0.85em;
+    }
+
+    .header-btn {
+        padding: 6px 10px;
+        font-size: 0.8em;
+    }
+
+    .header-btn svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    .question-card {
+        padding: var(--space-md);
+    }
+
+    .question-text {
+        font-size: 1em;
+    }
+
+    .option {
+        padding: 10px 12px;
+    }
+
+    .score {
+        font-size: 2em;
+    }
+
+    .percentage {
+        font-size: 1.6em;
+    }
+
+    .results-table {
+        font-size: 0.88em;
+    }
+
+    .results-table th,
+    .results-table td {
+        padding: 8px 10px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        font-size: 1em;
+    }
+
+    .quiz-timer {
+        font-size: 0.95em;
+    }
+
+    .stats-summary {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .stat-value {
+        font-size: 1.3em;
+    }
+
+    .dist-label {
+        width: 100px;
+        font-size: 0.82em;
+    }
+
+    .results-actions {
+        flex-direction: column;
+    }
+
+    .results-actions .btn {
+        width: 100%;
+    }
+
+    .resume-code-box {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-xs);
+    }
+
+    .resume-code-value {
+        font-size: 1.25em;
+    }
+
+    .save-indicator {
+        margin-inline-start: 0;
+    }
+
+    .modal {
+        padding: var(--space-lg);
+    }
+
+    .toast {
+        font-size: 0.9em;
+    }
+}

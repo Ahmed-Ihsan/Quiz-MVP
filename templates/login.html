@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}منصة الاختبار - تسجيل الدخول{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="card">
+            <h1>منصة الاختبار التفاعلي</h1>
+            <p class="subtitle">الأردوينو · بايثون · إنترنت الأشياء</p>
+
+            {% if resume_name %}
+            <div class="resume-option">
+                <p class="resume-option-title">لديك اختبار غير مكتمل باسم «{{ resume_name }}».</p>
+                <p class="resume-option-sub">هل تريد المتابعة من حيث توقفت أم بدء اختبار جديد؟</p>
+                <form method="POST" action="{{ url_for('login') }}" class="resume-option-form">
+                    <input type="hidden" name="name" value="{{ resume_name }}">
+                    <input type="hidden" name="resume_action" value="resume">
+                    <button type="submit" class="btn btn-resume">متابعة الاختبار</button>
+                </form>
+                <form method="POST" action="{{ url_for('login') }}" class="resume-option-form">
+                    <input type="hidden" name="name" value="{{ resume_name }}">
+                    <input type="hidden" name="resume_action" value="new">
+                    <button type="submit" class="btn btn-secondary btn-new">بدء جديد</button>
+                </form>
+            </div>
+            {% else %}
+            <form method="POST" action="{{ url_for('login') }}">
+                <div class="form-group">
+                    <label for="name">أدخل اسمك:</label>
+                    <input type="text" id="name" name="name" placeholder="اكتب اسمك هنا" required autofocus>
+                </div>
+                {% if error %}
+                <p class="error">{{ error }}</p>
+                {% endif %}
+                <button type="submit" class="btn">ابدأ الاختبار</button>
+            </form>
+            {% endif %}
+            <p class="admin-link">
+                <a href="{{ url_for('admin_login') }}">لوحة الإدارة</a>
+            </p>
+        </div>
+    </div>
+{% endblock %}

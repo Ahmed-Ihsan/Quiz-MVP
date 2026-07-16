@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}منصة الاختبار - الاختبار{% endblock %}
+
+{# صفحة الاختبار لها زر تبديل الوضع الخاص بها في الرأس — لا تُظهر الزر العائم #}
+{% block theme_toggle %}{% endblock %}
+
+{% block body %}
+    <div class="quiz-header" role="banner">
+        <div class="progress-bar" role="status" aria-live="polite" aria-atomic="true">
+            <span id="progress-text">السؤال 1 من {{ questions|length }}</span>
+            <div class="progress-track">
+                <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+            </div>
+        </div>
+        <span class="student-name">
+            <span class="student-avatar" aria-hidden="true">{{ session.name[:1] }}</span>
+            {{ session.name }}
+        </span>
+        {% if timer_minutes and timer_minutes > 0 %}
+        <span id="quiz-timer" class="quiz-timer" data-minutes="{{ timer_minutes }}" data-remaining="{{ remaining_seconds if remaining_seconds is not none else '' }}" aria-label="الوقت المتبقي">الوقت المتبقي: {{ timer_minutes }}:00</span>
+        {% endif %}
+        <span id="save-indicator" class="save-indicator" style="display:none;" role="status" aria-live="polite">تم الحفظ</span>
+        <button type="button" id="theme-toggle" class="header-btn theme-toggle" aria-label="تبديل الوضع الليلي">
+            <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+        <button type="button" id="fullscreen-btn" class="header-btn" aria-label="ملء الشاشة">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+        </button>
+    </div>
+
+    <div class="container">
+        <div class="resume-code-box">
+            <span class="resume-code-label">رمز الاستئناف الخاص بك (احفظه لمتابعة الاختبار لاحقًا):</span>
+            <code class="resume-code-value" id="resume-code-value">{{ resume_code }}</code>
+            <button type="button" class="copy-btn" id="copy-resume-code" aria-label="نسخ رمز الاستئناف">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                <span class="copy-btn-text">نسخ</span>
+            </button>
+            <a class="resume-code-link" href="{{ url_for('resume', code=resume_code) }}" target="_blank">{{ url_for('resume', code=resume_code, _external=True) }}</a>
+        </div>
+
+        <form id="quiz-form" method="POST" action="{{ url_for('submit') }}">
+            <input type="hidden" name="tab_switches" id="tab_switches" value="0">
+            <input type="hidden" name="resume_code" id="resume_code" value="{{ resume_code }}">
+            <input type="hidden" name="remaining_seconds" id="remaining_seconds" value="{{ remaining_seconds if remaining_seconds is not none else '' }}">
+            <script id="saved-answers-data" type="application/json">{{ saved_answers | tojson }}</script>
+            {% for q in questions %}
+            <div class="question-card" id="q{{ q.id }}">
+                <div class="question-number">{{ loop.index }}</div>
+                <div class="question-text">{{ q.question }}</div>
+                {% if q.image %}
+                <div class="question-image" style="margin:12px 0;text-align:center;">
+                    <img src="{{ q.image }}" alt="صورة السؤال" style="max-width:100%;border-radius:10px;border:1px solid var(--border-color,#ddd);">
+                </div>
+                {% endif %}
+                {% if q.code %}
+                <div class="code-block">
+                    <div class="code-block-header"><span></span></div>
+                    <pre><code>{{ q.code }}</code></pre>
+                </div>
+                {% endif %}
+                <div class="options" role="radiogroup" aria-label="خيارات السؤال {{ loop.index }}">
+                    {% for letter, text in q.options.items() %}
+                    <label class="option" tabindex="0" role="radio" aria-checked="false" data-question="q{{ q.id }}">
+                        <input type="radio" name="q{{ q.id }}" value="{{ letter }}" onchange="updateProgress()">
+                        <span class="option-radio" aria-hidden="true"></span>
+                        <!-- <span class="option-letter">{{ letter }})</span> -->
+                        <span class="option-text">{% if '\n' in text %}<pre class="option-code">{{ text }}</pre>{% else %}{{ text }}{% endif %}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+
+            <button type="submit" class="btn btn-submit" id="submit-btn">
+                <span class="btn-submit-text">إنهاء الاختبار</span>
+            </button>
+        </form>
+    </div>
+
+    <!-- حاوية إشعارات Toast -->
+    <div class="toast-container" id="toast-container" aria-live="assertive" aria-atomic="true"></div>
+
+    <!-- مودال تأكيد الأسئلة غير المُجابة -->
+    <div class="modal-overlay" id="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-hidden="true">
+        <div class="modal">
+            <h2 class="modal-title" id="modal-title">تأكيد إنهاء الاختبار</h2>
+            <p class="modal-body" id="modal-body"></p>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-modal-cancel" id="modal-cancel">إلغاء</button>
+                <button type="button" class="btn btn-modal-confirm" id="modal-confirm">متابعة وإرسال</button>
+            </div>
+        </div>
+    </div>
+{% endblock %}

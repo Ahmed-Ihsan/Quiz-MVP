@@ -1,0 +1,140 @@
+/* ═══════════════════════════════════════════════════ */
+/* === صندوق رمز الاستئناف === */
+/* ═══════════════════════════════════════════════════ */
+
+.resume-code-box {
+    background: var(--primary-light);
+    border: 1px solid var(--primary);
+    border-radius: var(--radius-md);
+    padding: var(--space-md) var(--space-lg);
+    margin-bottom: var(--space-md);
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+}
+
+.resume-code-label {
+    font-weight: 600;
+    color: var(--text);
+    font-size: 0.92em;
+}
+
+.resume-code-value {
+    font-family: var(--font-mono);
+    font-size: 1.4em;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: var(--primary);
+    background: var(--surface);
+    padding: 4px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px dashed var(--primary);
+    direction: ltr;
+    user-select: all;
+}
+
+/* زر نسخ رمز الاستئناف */
+.copy-btn {
+    padding: 6px 14px;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.85em;
+    font-family: inherit;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background var(--transition-fast), transform var(--transition-fast);
+}
+
+.copy-btn:hover {
+    background: var(--primary-hover);
+}
+
+.copy-btn:active {
+    transform: scale(0.95);
+}
+
+.copy-btn.copied {
+    background: var(--success);
+}
+
+.copy-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.resume-code-link {
+    font-size: 0.82em;
+    color: var(--primary);
+    text-decoration: none;
+    word-break: break-all;
+    direction: ltr;
+}
+
+.resume-code-link:hover {
+    text-decoration: underline;
+}
+
+/* ─── مؤشر الحفظ ─── */
+.save-indicator {
+    font-size: 0.82em;
+    color: #fff;
+    background: var(--success);
+    padding: 4px 12px;
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity var(--transition-fast), transform var(--transition-fast);
+    transform: translateY(-4px);
+}
+
+.save-indicator.save-success {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ─── خيار الاستئناف في صفحة تسجيل الدخول ─── */
+.resume-option {
+    text-align: center;
+}
+
+.resume-option-title {
+    font-size: 1.15em;
+    color: var(--text);
+    font-weight: 700;
+    margin-bottom: var(--space-sm);
+}
+
+.resume-option-sub {
+    color: var(--text-muted);
+    margin-bottom: var(--space-lg);
+}
+
+.resume-option-form {
+    margin-bottom: var(--space-sm);
+}
+
+.resume-option-form .btn {
+    width: 100%;
+}
+
+.btn-resume {
+    background: var(--success);
+}
+
+.btn-resume:hover {
+    background: #15803d;
+}
+
+[data-theme="dark"] .btn-resume:hover {
+    background: var(--success);
+}
+
+.btn-new {
+    margin-top: 0;
+}

@@ -1,0 +1,369 @@
+{% extends "base.html" %}
+
+{% block title %}لوحة إدارة الأسئلة{% endblock %}
+
+{% block body %}
+{% if admin_login %}
+{# ─── نموذج تسجيل دخول الإدارة ─── #}
+<div class="admin-login-wrapper">
+    <div class="admin-login-card">
+        <div class="admin-login-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+        </div>
+        <h1>لوحة الإدارة</h1>
+        <p class="subtitle">إدارة بنك الأسئلة</p>
+        {% if login_error %}
+        <div class="admin-alert admin-alert-error">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            {{ login_error }}
+        </div>
+        {% endif %}
+        <form method="POST" action="{{ url_for('admin_login') }}" class="admin-login-form" id="admin-login-form">
+            {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
+            <div class="form-group">
+                <label for="password">كلمة المرور</label>
+                <div class="password-input-wrapper" style="position:relative;">
+                    <input type="password" id="password" name="password" placeholder="••••••••" required autofocus style="padding-left:42px;">
+                    <button type="button" id="toggle-password" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:4px;color:var(--text-muted,#888);" title="إظهار/إخفاء">
+                        <svg id="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                </div>
+                <div id="arabic-warning" style="display:none;color:#e74c3c;font-size:13px;margin-top:6px;">
+                    ⚠ لوحة المفاتيح بالعربية! بدّل للإنجليزية ثم أعد كتابة كلمة المرور
+                </div>
+            </div>
+            <button type="submit" class="btn btn-admin-login">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                دخول
+            </button>
+        </form>
+        <a href="{{ url_for('login') }}" class="admin-back-link">&larr; العودة للصفحة الرئيسية</a>
+    </div>
+</div>
+<script>
+(function() {
+    var pwd = document.getElementById('password');
+    var warning = document.getElementById('arabic-warning');
+    var toggle = document.getElementById('toggle-password');
+    var eyeIcon = document.getElementById('eye-icon');
+
+    // كشف الأحرف العربية في كلمة المرور
+    var arabicPattern = /[\u0600-\u06FF\u0750-\u077F]/;
+    pwd.addEventListener('input', function() {
+        if (arabicPattern.test(this.value)) {
+            warning.style.display = 'block';
+        } else {
+            warning.style.display = 'none';
+        }
+    });
+
+    // زر إظهار/إخفاء كلمة المرور
+    toggle.addEventListener('click', function() {
+        if (pwd.type === 'password') {
+            pwd.type = 'text';
+            eyeIcon.innerHTML = '<path d="M17.94 17.94c-1.79 1.12-3.86 1.94-6.06 1.94-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+        } else {
+            pwd.type = 'password';
+            eyeIcon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+        }
+        pwd.focus();
+    });
+})();
+</script>
+{% else %}
+{# ─── رأس لوحة الإدارة (Glassmorphism) ─── #}
+<div class="admin-topbar">
+    <div class="admin-topbar-content">
+        <div class="admin-topbar-brand">
+            <div class="admin-topbar-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3 3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3 3h7z"/></svg>
+            </div>
+            <div>
+                <h1>إدارة الأسئلة</h1>
+                <span class="admin-topbar-sub">منصة الاختبار التفاعلي</span>
+            </div>
+        </div>
+        <div class="admin-topbar-actions">
+            <a href="{{ url_for('login') }}" class="admin-topbar-link">الرئيسية</a>
+            <a href="{{ url_for('admin_answers') }}" class="admin-topbar-link">إجابات الطلاب</a>
+            <a href="{{ url_for('stats') }}" class="admin-topbar-link">الإحصائيات</a>
+            <a href="{{ url_for('admin_logout') }}" class="admin-topbar-link admin-topbar-logout">خروج</a>
+        </div>
+    </div>
+</div>
+
+<div class="admin-panel">
+    {# ─── بطاقات الإحصائيات ─── #}
+    <div class="admin-stats-row">
+        <div class="admin-stat-card">
+            <div class="admin-stat-icon admin-stat-icon-blue">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            </div>
+            <div class="admin-stat-info">
+                <div class="admin-stat-value">{{ questions|length }}</div>
+                <div class="admin-stat-label">إجمالي الأسئلة</div>
+            </div>
+        </div>
+        <div class="admin-stat-card">
+            <div class="admin-stat-icon admin-stat-icon-purple">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </div>
+            <div class="admin-stat-info">
+                <div class="admin-stat-value">{{ sections|length }}</div>
+                <div class="admin-stat-label">عدد الأقسام</div>
+            </div>
+        </div>
+        <div class="admin-stat-card">
+            <div class="admin-stat-icon admin-stat-icon-green">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="6" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div class="admin-stat-info">
+                <div class="admin-stat-value">{% if edit_question %}تعديل{% else %}إضافة{% endif %}</div>
+                <div class="admin-stat-label">الوضع الحالي</div>
+            </div>
+        </div>
+    </div>
+
+    {% if form_success %}
+    <div class="admin-alert admin-alert-success">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;flex-shrink:0;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        {{ form_success }}
+    </div>
+    {% endif %}
+    {% if form_error %}
+    <div class="admin-alert admin-alert-error">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        {{ form_error }}
+    </div>
+    {% endif %}
+
+    {# ─── نموذج إضافة/تعديل سؤال ─── #}
+    <div class="admin-form-section" id="admin-form">
+        <div class="admin-section-header">
+            <div class="admin-section-icon">
+                {% if edit_question %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                {% else %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                {% endif %}
+            </div>
+            <h2>{% if edit_question %}تعديل السؤال #{{ edit_question.id }}{% else %}إضافة سؤال جديد{% endif %}</h2>
+        </div>
+        <form method="POST"
+              action="{% if edit_question %}{{ url_for('admin_edit_question', qid=edit_question.id) }}{% else %}{{ url_for('admin_add_question') }}{% endif %}"
+              class="admin-question-form">
+            <div class="admin-form-row">
+                <div class="form-group">
+                    <label for="section">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:middle;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                        القسم
+                    </label>
+                    <input type="text" id="section" name="section"
+                           list="sections-list"
+                           value="{% if edit_question %}{{ edit_question.section }}{% endif %}"
+                           placeholder="اكتب أو اختر قسمًا" required>
+                    <datalist id="sections-list">
+                        {% for s in sections %}
+                        <option value="{{ s }}">
+                        {% endfor %}
+                    </datalist>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="question">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:middle;"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    نص السؤال
+                </label>
+                <textarea id="question" name="question" rows="3" placeholder="اكتب نص السؤال هنا..." required>{% if edit_question %}{{ edit_question.question }}{% endif %}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="code">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:middle;"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                    كود <span class="admin-label-optional">(اختياري)</span>
+                </label>
+                <textarea id="code" name="code" rows="4" placeholder="ألصق الكود البرمجي هنا إن وجد..." class="admin-code-input">{% if edit_question and edit_question.code %}{{ edit_question.code }}{% endif %}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="image">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:middle;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    صورة <span class="admin-label-optional">(اختياري)</span>
+                </label>
+                <input type="url" id="image" name="image"
+                       value="{% if edit_question and edit_question.image %}{{ edit_question.image }}{% endif %}"
+                       placeholder="ألصق رابط الصورة هنا (https://...)">
+                {% if edit_question and edit_question.image %}
+                <div style="margin-top:8px;">
+                    <img src="{{ edit_question.image }}" alt="معاينة" style="max-width:200px;max-height:150px;border-radius:8px;border:1px solid var(--border-color,#ddd);">
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="admin-options-section">
+                <label class="admin-options-label">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;vertical-align:middle;"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                    الخيارات <span class="admin-label-hint">— حدد الإجابة الصحيحة</span>
+                </label>
+                <div class="admin-options-grid">
+                    {% for letter in ["أ", "ب", "ج", "د"] %}
+                    <div class="admin-option-card" data-letter="{{ letter }}">
+                        <label class="admin-option-header">
+                            <input type="radio" name="correct_answer" value="{{ letter }}"
+                                   {% if edit_question and edit_question.correct_answer == letter %}checked{% endif %}
+                                   class="correct-radio" required>
+                            <span class="admin-option-letter-badge">{{ letter }}</span>
+                            <span class="admin-option-correct-text">الإجابة الصحيحة</span>
+                        </label>
+                        <input type="text" name="option_{{ letter }}"
+                               value="{% if edit_question and edit_question.options.get(letter) %}{{ edit_question.options.get(letter) }}{% endif %}"
+                               placeholder="نص الخيار {{ letter }}" required>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="admin-form-actions">
+                <button type="submit" class="btn btn-admin-submit">
+                    {% if edit_question %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    حفظ التعديلات
+                    {% else %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    إضافة السؤال
+                    {% endif %}
+                </button>
+                {% if edit_question %}
+                <a href="{{ url_for('admin_questions') }}" class="btn btn-secondary">إلغاء</a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    {# ─── البحث والتصفية ─── #}
+    <div class="admin-list-section">
+        <div class="admin-list-header">
+            <div class="admin-section-header">
+                <div class="admin-section-icon admin-section-icon-list">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                </div>
+                <h2>الأسئلة الحالية <span class="admin-count-badge">{{ questions|length }}</span></h2>
+            </div>
+            <div class="admin-search-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="admin-search-icon"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="admin-search" placeholder="ابحث في الأسئلة..." autocomplete="off">
+            </div>
+        </div>
+
+        <div class="admin-filter-chips" id="admin-filter-chips">
+            <button class="admin-filter-chip active" data-section="__all__">الكل ({{ questions|length }})</button>
+            {% for s in sections %}
+            <button class="admin-filter-chip" data-section="{{ s }}">{{ s }}</button>
+            {% endfor %}
+        </div>
+
+        <div class="admin-questions-list" id="admin-questions-list">
+        {% for q in questions %}
+        <div class="admin-question-card{% if edit_question and edit_question.id == q.id %} editing{% endif %}"
+             data-section="{{ q.section }}"
+             data-search="{{ q.question|lower }} {{ q.section|lower }} {% for l, t in q.options.items() %}{{ t|lower }} {% endfor %}">
+            <div class="admin-question-top">
+                <div class="admin-question-meta">
+                    <span class="admin-qid">#{{ q.id }}</span>
+                    <span class="admin-qsection">{{ q.section }}</span>
+                </div>
+                <div class="admin-qactions">
+                    <a href="{{ url_for('admin_edit_question', qid=q.id) }}#admin-form" class="admin-action-btn admin-action-edit" title="تعديل">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    </a>
+                    <form method="POST" action="{{ url_for('admin_delete_question', qid=q.id) }}"
+                          onsubmit="return confirm('هل أنت متأكد من حذف السؤال #{{ q.id }}؟');"
+                          style="display:inline;">
+                        <button type="submit" class="admin-action-btn admin-action-delete" title="حذف">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <p class="admin-qtext">{{ q.question }}</p>
+            {% if q.code %}
+            <pre class="admin-qcode"><code>{{ q.code }}</code></pre>
+            {% endif %}
+            <ul class="admin-qoptions">
+                {% for letter, text in q.options.items() %}
+                <li class="{% if letter == q.correct_answer %}correct{% endif %}">
+                    <span class="admin-option-letter-small">{{ letter }})</span>
+                    <span class="admin-option-text-small">{{ text }}</span>
+                    {% if letter == q.correct_answer %}
+                    <span class="correct-badge">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;"><polyline points="20 6 9 17 4 12"/></svg>
+                        صحيح
+                    </span>
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endfor %}
+        </div>
+        <div class="admin-no-results" id="admin-no-results" style="display:none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:48px;height:48px;opacity:0.3;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <p>لا توجد نتائج مطابقة</p>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    var searchInput = document.getElementById('admin-search');
+    var cards = document.querySelectorAll('.admin-question-card');
+    var chips = document.querySelectorAll('.admin-filter-chip');
+    var noResults = document.getElementById('admin-no-results');
+    var activeSection = '__all__';
+    var searchTerm = '';
+
+    function filterCards() {
+        var visible = 0;
+        cards.forEach(function(card) {
+            var section = card.getAttribute('data-section');
+            var search = card.getAttribute('data-search');
+            var sectionMatch = activeSection === '__all__' || section === activeSection;
+            var searchMatch = !searchTerm || search.indexOf(searchTerm) !== -1;
+            if (sectionMatch && searchMatch) {
+                card.style.display = '';
+                visible++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        noResults.style.display = visible === 0 ? 'flex' : 'none';
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            searchTerm = this.value.trim().toLowerCase();
+            filterCards();
+        });
+    }
+
+    chips.forEach(function(chip) {
+        chip.addEventListener('click', function() {
+            chips.forEach(function(c) { c.classList.remove('active'); });
+            this.classList.add('active');
+            activeSection = this.getAttribute('data-section');
+            filterCards();
+        });
+    });
+
+    // Scroll to form if editing
+    {% if edit_question %}
+    document.getElementById('admin-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    {% endif %}
+})();
+</script>
+{% endif %}
+{% endblock %}

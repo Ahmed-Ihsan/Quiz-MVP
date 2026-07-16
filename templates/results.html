@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}منصة الاختبار - جميع النتائج{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="card">
+            <h1>نتائج الطلاب</h1>
+            <div class="results-actions">
+                <a href="{{ url_for('export') }}" class="btn btn-export">تصدير CSV</a>
+                <a href="{{ url_for('stats') }}" class="btn btn-secondary">عرض الإحصائيات</a>
+            </div>
+            {% if results %}
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>الاسم</th>
+                        <th>النتيجة</th>
+                        <th>النسبة المئوية</th>
+                        <th>التاريخ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in results %}
+                    <tr>
+                        <td>{{ r.name }}</td>
+                        <td>{{ r.correct }} / {{ r.total }}</td>
+                        <td>{{ r.percentage }}%</td>
+                        <td>{{ r.date }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="no-results">لا توجد نتائج بعد</p>
+            {% endif %}
+            <div class="nav-buttons">
+                <a href="{{ url_for('login') }}" class="btn">العودة للرئيسية</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

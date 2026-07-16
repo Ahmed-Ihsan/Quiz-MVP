@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}منصة الاختبار - النتيجة{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="card result-card">
+            <h1>نتيجة الاختبار</h1>
+            <p class="student-name">الطالب: {{ name }}</p>
+
+            <div class="score-box">
+                <div class="score">{{ correct }} / {{ total }}</div>
+                <div class="percentage">{{ percentage }}%</div>
+                <div class="grade grade-{% if percentage >= 90 %}excellent{% elif percentage >= 70 %}good{% else %}needs{% endif %}">
+                    {{ grade }}
+                </div>
+            </div>
+
+            <div class="nav-buttons">
+                <a href="{{ url_for('logout') }}" class="btn btn-secondary">خروج</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toast-container" aria-live="assertive" aria-atomic="true"></div>
+{% endblock %}
+
+{% block scripts %}
+    {% if request.args.get('submitted') %}
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        showToast("تم إرسال إجاباتك بنجاح!", "success");
+    });
+    </script>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}منصة الاختبار - رمز غير صحيح{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="card result-card">
+            <h1>رمز الاستئناف غير صحيح أو منتهي</h1>
+            <p class="subtitle">تعذّر العثور على اختبار غير مكتمل بهذا الرمز. ربما أُكمل الاختبار أو الرمز خاطئ.</p>
+            <div class="nav-buttons">
+                <a href="{{ url_for('login') }}" class="btn">العودة لتسجيل الدخول</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

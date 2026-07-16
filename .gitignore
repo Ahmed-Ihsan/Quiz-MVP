@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+*.pyo
+quiz.db
+stats_test.txt
+*.db
+.env

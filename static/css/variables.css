@@ -1,0 +1,97 @@
+/* === منصة الاختبار التفاعلي — نظام التصميم المتقدم === */
+
+/* ─── المتغيرات: الوضع النهاري ─── */
+:root {
+    /* الألوان */
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --surface-hover: #f1f5f9;
+    --surface-elevated: #ffffff;
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+    --primary-light: #dbeafe;
+    --accent: #7c3aed;
+    --accent-light: #ede9fe;
+    --text: #1e293b;
+    --text-muted: #64748b;
+    --text-inverse: #f8fafc;
+    --border: #e2e8f0;
+    --border-strong: #cbd5e1;
+    --success: #16a34a;
+    --success-light: #dcfce7;
+    --warning: #d97706;
+    --warning-light: #fef3c7;
+    --danger: #dc2626;
+    --danger-light: #fee2e2;
+    --code-bg: #1e293b;
+    --code-header: #334155;
+    --code-text: #e2e8f0;
+
+    /* الظلال الطبقية */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+    --shadow-primary: 0 4px 14px rgba(37, 99, 235, 0.25);
+    --shadow-danger: 0 4px 14px rgba(220, 38, 38, 0.25);
+
+    /* أنصاف الأقطار */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    --radius-full: 9999px;
+
+    /* المسافات */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+    --space-2xl: 48px;
+
+    /* الانتقالات */
+    --transition-fast: 150ms ease-out;
+    --transition-base: 250ms ease-out;
+    --transition-slow: 400ms ease-out;
+
+    /* الطباعة */
+    --font-family: "Cairo", "Segoe UI", "Tahoma", sans-serif;
+    --font-mono: "Consolas", "Courier New", monospace;
+    --line-height-body: 1.75;
+    --line-height-heading: 1.4;
+}
+
+/* ─── المتغيرات: الوضع الليلي ─── */
+[data-theme="dark"] {
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --surface-hover: #334155;
+    --surface-elevated: #243449;
+    --primary: #3b82f6;
+    --primary-hover: #60a5fa;
+    --primary-light: #1e3a5f;
+    --accent: #a78bfa;
+    --accent-light: #3d2a5e;
+    --text: #f1f5f9;
+    --text-muted: #94a3b8;
+    --text-inverse: #0f172a;
+    --border: #334155;
+    --border-strong: #475569;
+    --success: #22c55e;
+    --success-light: #14351f;
+    --warning: #f59e0b;
+    --warning-light: #3d2a08;
+    --danger: #ef4444;
+    --danger-light: #3d1515;
+    --code-bg: #0d1421;
+    --code-header: #1a2332;
+    --code-text: #c8d3e0;
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.15);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.2);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.35), 0 8px 10px -6px rgba(0, 0, 0, 0.2);
+    --shadow-primary: 0 4px 14px rgba(59, 130, 246, 0.3);
+    --shadow-danger: 0 4px 14px rgba(239, 68, 68, 0.3);
+}

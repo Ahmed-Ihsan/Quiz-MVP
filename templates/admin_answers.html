@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}لوحة الإدارة - إجابات الطلاب{% endblock %}
+
+{% block body %}
+<div class="admin-topbar">
+    <div class="admin-topbar-content">
+        <div class="admin-topbar-brand">
+            <div class="admin-topbar-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            </div>
+            <div>
+                <h1>إجابات الطلاب</h1>
+                <span class="admin-topbar-sub">مراجعة تفصيلية للإجابات</span>
+            </div>
+        </div>
+        <div class="admin-topbar-actions">
+            <a href="{{ url_for('admin_questions') }}" class="admin-topbar-link">إدارة الأسئلة</a>
+            <a href="{{ url_for('stats') }}" class="admin-topbar-link">الإحصائيات</a>
+            <a href="{{ url_for('admin_logout') }}" class="admin-topbar-link admin-topbar-logout">خروج</a>
+        </div>
+    </div>
+</div>
+
+<div class="admin-panel">
+    {% if details is defined %}
+    {# ─── تفاصيل طالب محدد ─── #}
+    <div class="admin-form-section">
+        <div class="admin-section-header">
+            <div class="admin-section-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <h2>إجابات: {{ student_name }} — {{ student_date }}</h2>
+        </div>
+        <a href="{{ url_for('admin_answers') }}" class="btn btn-secondary" style="margin-bottom:16px;">&larr; العودة للقائمة</a>
+
+        <div class="admin-answers-list">
+            {% for d in details %}
+            <div class="admin-answer-card{% if not d.is_correct %} admin-answer-wrong{% endif %}">
+                <div class="admin-answer-header">
+                    <span class="admin-answer-qid">#{{ d.question_id }}</span>
+                    <span class="admin-answer-section">{{ d.section }}</span>
+                    <span class="admin-answer-status {% if d.is_correct %}correct{% else %}wrong{% endif %}">
+                        {% if d.is_correct %}صحيحة{% else %}خاطئة{% endif %}
+                    </span>
+                </div>
+                <p class="admin-answer-question">{{ d.question_text }}</p>
+                {% if d.image %}
+                <div style="margin:8px 0;text-align:center;">
+                    <img src="{{ d.image }}" alt="صورة السؤال" style="max-width:100%;max-height:300px;border-radius:8px;border:1px solid var(--border-color,#ddd);">
+                </div>
+                {% endif %}
+                {% if d.code %}
+                <pre class="admin-qcode"><code>{{ d.code }}</code></pre>
+                {% endif %}
+                <div class="admin-answer-rows">
+                    <div class="answer-row">
+                        <span class="answer-label">إجابة الطالب:</span>
+                        <span class="{% if d.is_correct %}correct-answer-text{% else %}user-answer{% endif %}">
+                            {{ d.user_answer }}{% if d.user_answer != 'لم يتم الإجابة' %}) {{ d.correct_text if d.is_correct else '' }}{% endif %}
+                        </span>
+                    </div>
+                    {% if not d.is_correct %}
+                    <div class="answer-row">
+                        <span class="answer-label">الإجابة الصحيحة:</span>
+                        <span class="correct-answer-text">{{ d.correct_answer }}) {{ d.correct_text }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% else %}
+    {# ─── قائمة الطلاب ─── #}
+    <div class="admin-list-section">
+        <div class="admin-list-header">
+            <div class="admin-section-header">
+                <div class="admin-section-icon admin-section-icon-list">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                </div>
+                <h2>طلاب أكملوا الاختبار <span class="admin-count-badge">{{ students|length }}</span></h2>
+            </div>
+        </div>
+
+        {% if students %}
+        <table class="results-table admin-answers-table">
+            <thead>
+                <tr>
+                    <th>الاسم</th>
+                    <th>النتيجة</th>
+                    <th>النسبة المئوية</th>
+                    <th>التاريخ</th>
+                    <th>مراجعة</th>
+                    <th>حذف</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in students %}
+                <tr>
+                    <td>{{ s.student_name }}</td>
+                    <td>{{ s.correct_count }} / {{ s.total_count }}</td>
+                    <td>{{ s.percentage }}%</td>
+                    <td>{{ s.date }}</td>
+                    <td>
+                        {% if s.has_details %}
+                        <a href="{{ url_for('admin_answers_detail', name=s.student_name, date=s.date) }}"
+                           class="admin-action-btn admin-action-edit" title="مراجعة الإجابات">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </a>
+                        {% else %}
+                        <span class="admin-no-details">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <form method="POST" action="{{ url_for('admin_answers_delete') }}"
+                              onsubmit="return confirm('هل أنت متأكد من حذف {{ s.student_name }} ({{ s.date }})؟ لا يمكن التراجع.');"
+                              style="display:inline;">
+                            <input type="hidden" name="name" value="{{ s.student_name }}">
+                            <input type="hidden" name="date" value="{{ s.date }}">
+                            <button type="submit" class="admin-action-btn admin-action-delete" title="حذف الطالب">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="no-results">لا توجد إجابات محفوظة بعد</p>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

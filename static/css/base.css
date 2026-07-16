@@ -1,0 +1,190 @@
+/* ─── Reset ─── */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ─── reset عربي: line-height و letter-spacing ─── */
+html {
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    font-family: var(--font-family);
+    background: var(--bg);
+    color: var(--text);
+    line-height: var(--line-height-body);
+    letter-spacing: 0; /* إلزامي للعربية — النص المتصل */
+    transition: background var(--transition-base), color var(--transition-base);
+    min-height: 100vh;
+}
+
+/* ─── احترام تفضيل تقليل الحركة ─── */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* ─── مؤشرات التركيز الوصولية ─── */
+:focus-visible {
+    outline: 3px solid var(--primary);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+}
+
+/* ─── الحاوية ─── */
+.container {
+    max-width: 820px;
+    margin: var(--space-lg) auto;
+    padding: 0 var(--space-md);
+}
+
+/* ─── البطاقة ─── */
+.card {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border);
+    transition: box-shadow var(--transition-base);
+}
+
+.card h1 {
+    color: var(--text);
+    text-align: center;
+    margin-bottom: var(--space-sm);
+    font-size: 1.8em;
+    font-weight: 700;
+    line-height: var(--line-height-heading);
+}
+
+.subtitle {
+    text-align: center;
+    color: var(--text-muted);
+    margin-bottom: var(--space-lg);
+    font-size: 1.05em;
+}
+
+/* ─── النموذج ─── */
+.form-group {
+    margin-bottom: var(--space-lg);
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: var(--space-sm);
+    font-weight: 600;
+    color: var(--text);
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: 1.05em;
+    font-family: inherit;
+    background: var(--surface);
+    color: var(--text);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.form-group input::placeholder {
+    color: var(--text-muted);
+}
+
+.form-group input:focus {
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+/* ─── الأزرار ─── */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    padding: 12px 28px;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 1.05em;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn:hover {
+    background: var(--primary-hover);
+    box-shadow: var(--shadow-md);
+}
+
+.btn:active {
+    transform: scale(0.97);
+}
+
+.btn-secondary {
+    background: var(--text-muted);
+}
+
+.btn-secondary:hover {
+    background: var(--border-strong);
+}
+
+.btn-submit {
+    display: flex;
+    width: 100%;
+    margin-top: var(--space-lg);
+    padding: 16px;
+    font-size: 1.15em;
+    background: var(--danger);
+    box-shadow: var(--shadow-danger);
+}
+
+.btn-submit:hover {
+    background: #b91c1c;
+    box-shadow: var(--shadow-danger);
+}
+
+[data-theme="dark"] .btn-submit:hover {
+    background: #dc2626;
+}
+
+/* حالة loading للزر */
+.btn-loading {
+    pointer-events: none;
+    opacity: 0.75;
+}
+
+.btn-spinner {
+    width: 18px;
+    height: 18px;
+    border: 2.5px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ─── رسالة الخطأ ─── */
+.error {
+    color: var(--danger);
+    text-align: center;
+    margin-bottom: var(--space-md);
+    font-weight: 600;
+}

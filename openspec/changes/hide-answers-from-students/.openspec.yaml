@@ -1,0 +1,4 @@
+schema: spec-driven
+created: 2026-07-16
+goal: Hide correct/wrong answers from students on the result page, store answer
+  details in a separate table for admin-only review
